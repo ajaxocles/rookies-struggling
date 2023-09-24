@@ -128,6 +128,8 @@ void Robot::TeleopPeriodic() {
       // Limit Switch Stop
       if (!m_limit_switch.Get()) {
         m_left.Set(m_stick.GetLeftX());
+      } else {
+        m_left.Set(0.0);
       }
       break;
 

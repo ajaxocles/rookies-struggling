@@ -46,7 +46,7 @@ class Robot : public frc::TimedRobot {
   } m_testMode;
 
   rev::CANSparkMax m_right{1, rev::CANSparkMax::MotorType::kBrushless};
-  rev::CANSparkMax m_left{4, rev::CANSparkMax::MotorType::kBrushless};
+  rev::CANSparkMax m_left{2, rev::CANSparkMax::MotorType::kBrushless};
 
   rev::SparkMaxRelativeEncoder m_leftEncoder  = m_left.GetEncoder();
   rev::SparkMaxRelativeEncoder m_rightEncoder = m_right.GetEncoder();
