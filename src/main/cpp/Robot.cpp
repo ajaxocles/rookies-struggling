@@ -13,6 +13,7 @@ void Robot::RobotInit() {
   m_chooser.AddOption(kTestFollower, kTestFollower);
   m_chooser.AddOption(kTestPosition, kTestPosition);
   m_chooser.AddOption(kTestVelocity, kTestVelocity);
+  m_chooser.AddOption(kTestAbsolutePosition, kTestAbsolutePosition);
 
   frc::SmartDashboard::PutData("Test Modes", &m_chooser);
   frc::SmartDashboard::PutNumber("Position", m_position);
@@ -28,6 +29,8 @@ void Robot::RobotInit() {
   frc::SmartDashboard::PutNumber("Min Output", m_pidCoeff.kMinOutput);
 
   frc::SmartDashboard::PutNumber("Position Soft Limit", m_softLimit);
+  frc::SmartDashboard::PutNumber("Absolute Position Zero Offset", m_zeroOffset);
+
   frc::SmartDashboard::PutNumber("Desired Position", m_position);
   frc::SmartDashboard::PutNumber("Desired Velocity", m_rpm);
 
@@ -78,7 +81,10 @@ void Robot::TeleopInit() {
   }
   if (m_testSelected == kTestVelocity) {
     m_testMode = TEST_VELOCITY_PID;
-  } 
+  }
+ if (m_testSelected == kTestAbsolutePosition) {
+    m_testMode = TEST_POSITION_ABSOLUTE;
+  }
 
   // Get PID coefficients from dashboard
   m_pidCoeff.kP         = frc::SmartDashboard::GetNumber("P Gain", m_pidCoeff.kP);
@@ -97,9 +103,10 @@ void Robot::TeleopInit() {
   m_pid.SetFF(m_pidCoeff.kFF);
   m_pid.SetOutputRange(m_pidCoeff.kMinOutput, m_pidCoeff.kMaxOutput);
 
-  m_position  = frc::SmartDashboard::GetNumber("Desired Position", m_position);
-  m_rpm       = frc::SmartDashboard::GetNumber("Desired Velocity", m_rpm);
-  m_softLimit = frc::SmartDashboard::GetNumber("Position Soft Limit", m_softLimit);
+  m_position   = frc::SmartDashboard::GetNumber("Desired Position", m_position);
+  m_rpm        = frc::SmartDashboard::GetNumber("Desired Velocity", m_rpm);
+  m_softLimit  = frc::SmartDashboard::GetNumber("Position Soft Limit", m_softLimit);
+  m_zeroOffset = frc::SmartDashboard::PutNumber("Absolute Position Zero Offset", m_zeroOffset);
 
   // Set Folloer mode
   if (m_testMode == TEST_FOLLOWER) {
@@ -110,13 +117,19 @@ void Robot::TeleopInit() {
       m_left.SetSoftLimit(rev::CANSparkMax::SoftLimitDirection::kForward, m_softLimit);
   }
 
+  if (m_testMode == TEST_POSITION_ABSOLUTE) {
+    m_abs_encoder.SetZeroOffset(m_zeroOffset);
+   //  m_abs_encoder.SetInverted(true); // might be needed
+    m_pid.SetFeedbackDevice(m_abs_encoder);
+  }
+
   // Zero encoders
   m_leftEncoder.SetPosition(0.0);
   m_rightEncoder.SetPosition(0.0);
 }
 
 void Robot::TeleopPeriodic() {
-
+  // Run test mode
   switch (m_testMode)
   {
     case TEST_THROTTLE:
@@ -151,6 +164,13 @@ void Robot::TeleopPeriodic() {
         m_pid.SetReference(m_rpm, rev::CANSparkMax::ControlType::kVelocity);
       } else {
         m_pid.SetReference(0.0, rev::CANSparkMax::ControlType::kVelocity);
+      }
+      break;
+
+    case TEST_POSITION_ABSOLUTE:
+      // Absolute Position PID
+      if (m_stick.GetAButtonPressed()) {
+        m_pid.SetReference(m_position, rev::CANSparkMax::ControlType::kPosition);
       }
       break;
   }

@@ -29,11 +29,12 @@ class Robot : public frc::TimedRobot {
 
  private:
   frc::SendableChooser<std::string> m_chooser;
-  const std::string kTestThrottle  = "Throttle";
-  const std::string kTestLimit     = "Limit";
-  const std::string kTestFollower  = "Follower";
-  const std::string kTestPosition  = "Position";
-  const std::string kTestVelocity  = "Velocity";
+  const std::string kTestThrottle          = "Throttle";
+  const std::string kTestLimit             = "Limit";
+  const std::string kTestFollower          = "Follower";
+  const std::string kTestPosition          = "Position";
+  const std::string kTestVelocity          = "Velocity";
+  const std::string kTestAbsolutePosition  = "Absolute Position";
 
   std::string m_testSelected;
 
@@ -43,6 +44,7 @@ class Robot : public frc::TimedRobot {
     TEST_FOLLOWER,
     TEST_POSITION_PID,
     TEST_VELOCITY_PID,
+    TEST_POSITION_ABSOLUTE
   } m_testMode;
 
   rev::CANSparkMax m_right{1, rev::CANSparkMax::MotorType::kBrushless};
@@ -51,15 +53,17 @@ class Robot : public frc::TimedRobot {
   rev::SparkMaxRelativeEncoder m_leftEncoder  = m_left.GetEncoder();
   rev::SparkMaxRelativeEncoder m_rightEncoder = m_right.GetEncoder();
 
-  rev::SparkMaxPIDController m_pid = m_left.GetPIDController();
+  rev::SparkMaxPIDController   m_pid = m_left.GetPIDController();
+  rev::SparkMaxAbsoluteEncoder m_abs_encoder = m_left.GetAbsoluteEncoder(rev::SparkMaxAbsoluteEncoder::Type::kDutyCycle);
 
   frc::DigitalInput m_limit_switch{0};
 
   frc::XboxController m_stick{0};
 
-  double m_rpm       = 0.0;
-  double m_position  = 0.0;
-  double m_softLimit = 100.0;
+  double m_rpm        = 0.0;
+  double m_position   = 0.0;
+  double m_softLimit  = 100.0;
+  double m_zeroOffset = 0.0;
 
   // PID coefficient structure
   struct pidCoeff {
@@ -72,5 +76,4 @@ class Robot : public frc::TimedRobot {
     double kMaxOutput;
   };
   pidCoeff m_pidCoeff {0.0, 0.0, 0.0, 0.0, 0.0, -1.0, 1.0};
-
 };
