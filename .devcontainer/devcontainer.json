@@ -1,0 +1,16 @@
+{
+  "image": "ubuntu",
+  "postCreateCommand": "./gradlew installRoboRioToolchain && wget 'https://github.com/wpilibsuite/vscode-wpilib/releases/download/v2023.2.1/vscode-wpilib-2023.2.1.vsix' && mv vscode-wpilib-2023.2.1.vsix",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers-contrib/features/wget-apt-get:1": {},
+    "ghcr.io/devcontainers/features/java:1": {}
+      
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["/opt/vscode-wpilib-2023.2.1.vsix","vscjava.vscode-java-pack","vscjava.vscode-gradle", "redhat.java", "vscjava.vscode-java-debug", "vscjava.vscode-java-dependency", "ms-vscode.cpptools"]
+    }
+  }
+}
